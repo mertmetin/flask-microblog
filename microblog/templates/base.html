@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}{% endblock %}{% if self.title() %} · {% endif %}microblog</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site">
+    <a class="brand" href="{{ url_for('blog.index') }}">micro<span>blog</span></a>
+    <form class="search" action="{{ url_for('blog.search') }}" role="search">
+      <label class="sr-only" for="q">Search posts</label>
+      <input id="q" name="q" type="search" placeholder="Search posts" value="{{ request.args.get('q', '') }}">
+    </form>
+    <nav aria-label="Main">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('blog.create') }}">Write</a>
+        <a href="{{ url_for('blog.moderate') }}">Moderate</a>
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="link">Sign out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Sign in</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main id="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<p class="flash {{ category }}" role="status">{{ message }}</p>{% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site">
+    <p>A Flask blog, first written in 2014, rebuilt in 2026. <a href="https://github.com/mertmetin/flask-microblog">Source</a></p>
+  </footer>
+</body>
+</html>

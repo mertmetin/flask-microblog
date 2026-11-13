@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+  <h1 class="page-title">Sign in</h1>
+  <form method="post" class="editor narrow">
+    {{ form.csrf_token }}
+    <label>{{ form.username.label.text }} {{ form.username(autocomplete="username") }}</label>
+    <label>{{ form.password.label.text }} {{ form.password(autocomplete="current-password") }}</label>
+    <button>Sign in</button>
+  </form>
+{% endblock %}

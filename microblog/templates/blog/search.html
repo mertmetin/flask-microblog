@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+  <h1 class="page-title">{% if q %}Results for “{{ q }}”{% else %}Search{% endif %}</h1>
+  {% if q and not results %}<p class="empty">Nothing matched. Try fewer or different words.</p>{% endif %}
+  {% for post, score in results %}
+    <article class="card">
+      <p class="meta">relevance {{ '%.2f'|format(score) }}</p>
+      <h2><a href="{{ url_for('blog.post', slug=post.slug) }}">{{ post.title }}</a></h2>
+      <div class="excerpt">{{ post.body.split('\n\n')[0]|markdown }}</div>
+    </article>
+  {% endfor %}
+{% endblock %}

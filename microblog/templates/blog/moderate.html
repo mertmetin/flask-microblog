@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Moderate{% endblock %}
+{% block content %}
+  <h1 class="page-title">Moderation</h1>
+  <p class="meta">{{ counts.get('approved', 0) }} approved · {{ counts.get('pending', 0) }} held for review · {{ counts.get('spam', 0) }} spam</p>
+  {% for c in comments %}
+    <article class="card comment {{ c.status }}">
+      <p class="meta"><span class="badge {{ c.status }}">{{ c.status }}</span> score {{ '%.0f'|format(c.spam_score) }} · <strong>{{ c.author }}</strong> on <a href="{{ url_for('blog.post', slug=c.post.slug) }}">{{ c.post.title }}</a></p>
+      <p class="reasons">{{ c.spam_reasons or 'no signals' }}</p>
+      <div class="prose small">{{ c.body|markdown }}</div>
+      <div class="admin-actions">
+        {% for action in ['approve', 'delete'] %}
+          <form method="post" action="{{ url_for('blog.moderate_comment', comment_id=c.id, action=action) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="link {{ 'danger' if action == 'delete' }}">{{ action|capitalize }}</button>
+          </form>
+        {% endfor %}
+      </div>
+    </article>
+  {% else %}
+    <p class="empty">Nothing waiting. 🎉</p>
+  {% endfor %}
+{% endblock %}

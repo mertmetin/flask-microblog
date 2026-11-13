@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+  <article class="post">
+    <p class="meta"><time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%B %-d, %Y') }}</time> · {{ post.reading_minutes }} min read · by {{ post.author.username }}</p>
+    <h1>{{ post.title }}</h1>
+    <div class="prose">{{ post.body|markdown }}</div>
+
+    {% if current_user.is_authenticated %}
+      <div class="admin-actions">
+        <a href="{{ url_for('blog.edit', slug=post.slug) }}">Edit</a>
+        <form method="post" action="{{ url_for('blog.delete', slug=post.slug) }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="link danger">Delete</button>
+        </form>
+      </div>
+    {% endif %}
+  </article>
+
+  {% if related %}
+    <aside class="related" aria-labelledby="related-heading">
+      <h2 id="related-heading">Related posts</h2>
+      <ul>{% for r in related %}<li><a href="{{ url_for('blog.post', slug=r.slug) }}">{{ r.title }}</a></li>{% endfor %}</ul>
+    </aside>
+  {% endif %}
+
+  <section id="comments" class="comments" aria-labelledby="comments-heading">
+    <h2 id="comments-heading">{{ post.approved_comments|length }} comment{{ '' if post.approved_comments|length == 1 else 's' }}</h2>
+    {% for c in post.approved_comments %}
+      <article class="comment">
+        <p class="meta"><strong>{{ c.author }}</strong> · <time datetime="{{ c.created_at.isoformat() }}">{{ c.created_at.strftime('%b %-d, %Y') }}</time></p>
+        <div class="prose small">{{ c.body|markdown }}</div>
+      </article>
+    {% endfor %}
+
+    <form method="post" class="comment-form" novalidate>
+      {{ form.csrf_token }}
+      {{ form.rendered_at }}
+      <h3>Leave a comment</h3>
+      <label>{{ form.author.label.text }} {{ form.author(maxlength=80, autocomplete="name") }}</label>
+      <label class="hp" aria-hidden="true">{{ form.website.label.text }} {{ form.website(tabindex="-1", autocomplete="off") }}</label>
+      <label>{{ form.body.label.text }} <small>Markdown works</small> {{ form.body(rows=5) }}</label>
+      {% for field in [form.author, form.body] %}{% for e in field.errors %}<p class="error">{{ field.label.text }}: {{ e }}</p>{% endfor %}{% endfor %}
+      <button>Post comment</button>
+    </form>
+  </section>
+{% endblock %}

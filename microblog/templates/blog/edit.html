@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if post else 'Write' }}{% endblock %}
+{% block content %}
+  <h1 class="page-title">{{ 'Edit post' if post else 'New post' }}</h1>
+  <form method="post" class="editor">
+    {{ form.csrf_token }}
+    <label>{{ form.title.label.text }} {{ form.title(maxlength=200) }}</label>
+    <label>{{ form.body.label.text }} {{ form.body(rows=18) }}</label>
+    {% for field in [form.title, form.body] %}{% for e in field.errors %}<p class="error">{{ field.label.text }}: {{ e }}</p>{% endfor %}{% endfor %}
+    <button>{{ 'Save' if post else 'Publish' }}</button>
+  </form>
+{% endblock %}

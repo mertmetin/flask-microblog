@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  {% for post in posts.items %}
+    <article class="card">
+      <p class="meta"><time datetime="{{ post.created_at.isoformat() }}">{{ post.created_at.strftime('%b %-d, %Y') }}</time> · {{ post.reading_minutes }} min read · {{ post.approved_comments|length }} comment{{ '' if post.approved_comments|length == 1 else 's' }}</p>
+      <h2><a href="{{ url_for('blog.post', slug=post.slug) }}">{{ post.title }}</a></h2>
+      <div class="excerpt">{{ post.body.split('\n\n')[0]|markdown }}</div>
+    </article>
+  {% else %}
+    <p class="empty">No posts yet.{% if current_user.is_authenticated %} <a href="{{ url_for('blog.create') }}">Write the first one.</a>{% endif %}</p>
+  {% endfor %}
+
+  {% if posts.pages > 1 %}
+    <nav class="pager" aria-label="Pages">
+      {% if posts.has_prev %}<a href="{{ url_for('blog.index', page=posts.prev_num) }}">← Newer</a>{% else %}<span></span>{% endif %}
+      <span>Page {{ posts.page }} of {{ posts.pages }}</span>
+      {% if posts.has_next %}<a href="{{ url_for('blog.index', page=posts.next_num) }}">Older →</a>{% else %}<span></span>{% endif %}
+    </nav>
+  {% endif %}
+{% endblock %}
